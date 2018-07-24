@@ -108,6 +108,8 @@ public class MainActivity extends AppCompatActivity {
         Voice = (ImageView) findViewById(R.id.Voice);
         Clear = (ImageView) findViewById(R.id.Clear);
 
+        ///first
+
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle("Spell Checker");
 
