@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Spell Checker</string>
+    <string name="title_activity_download_data">activity_download_data</string>
+</resources>
