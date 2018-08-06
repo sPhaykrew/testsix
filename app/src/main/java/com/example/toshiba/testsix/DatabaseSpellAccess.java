@@ -17,7 +17,8 @@ public class DatabaseSpellAccess {
     }
 
     public void open(){
-        db = openHelper.getWritableDatabase();
+        if (db == null){
+        db = openHelper.getWritableDatabase(); }
     }
 
     public void close(){

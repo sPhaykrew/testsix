@@ -1,5 +1,6 @@
 package com.example.toshiba.testsix;
 
+import android.util.Log;
 import java.util.ArrayList;
 import java.util.Locale;
 
@@ -15,21 +16,19 @@ public class Breakclass {
         try {
             replace = i.replace(" ","");
             boundary.setText(replace);
-            int yy = 0;
-            int t = 0;
             StringBuffer th = new StringBuffer();
             int start = boundary.first();
-            while (t == yy) {
-                yy++;
-                for (int pp = boundary.next(); pp != java.text.BreakIterator.DONE; start = pp, pp = boundary.next()) {
-                    th.append(replace.substring(start, pp) + ",");
+                for (int next = boundary.next(); next != java.text.BreakIterator.DONE; start = next, next = boundary.next()) {
+                    int sum = next - start;
+                    if(sum >= 2){
+                    th.append(replace.substring(start, next) + ",");
                     word = th.toString();
-                    word1 = word;
-                }}}
+                    word1 = word; }
+                    else{ next--;}
+                }}
         catch(Exception e){
             System.out.println("Error !" + e.getMessage());
         }
-        word.toString();
         return word1;
     }
 
@@ -40,19 +39,17 @@ public class Breakclass {
         try {
             replace = i.replace(" ","");
             boundary.setText(replace);
-            int yy = 0;
-            int t = 0;
             StringBuffer th = new StringBuffer();
             int start = boundary.first();
-            while (t == yy) {
-                yy++;
-                for (int pp = boundary.next(); pp != java.text.BreakIterator.DONE; start = pp, pp = boundary.next()) {
-                    th.append(replace.substring(start, pp) + ",");
+                for (int next = boundary.next(); next != java.text.BreakIterator.DONE; start = next, next = boundary.next()) {
+                    int sum = next - start;
+                    if(sum >= 2){
+                    th.append(replace.substring(start, next) + ",");
                     word = th.toString();
                     word1 = word;
-                    first.add(start);
-
-                }}}
+                    first.add(start);}
+                    else{ next--;}
+                }}
         catch(Exception e){
             System.out.println("Error !" + e.getMessage());
         }
@@ -67,19 +64,17 @@ public class Breakclass {
         try {
             replace = i.replace(" ","");
             boundary.setText(replace);
-            int yy = 0;
-            int t = 0;
             StringBuffer th = new StringBuffer();
             int start = boundary.first();
-            while (t == yy) {
-                yy++;
-                for (int pp = boundary.next(); pp != java.text.BreakIterator.DONE; start = pp, pp = boundary.next()) {
-                    th.append(replace.substring(start, pp) + ",");
+                for (int next = boundary.next(); next != java.text.BreakIterator.DONE; start = next, next = boundary.next()) {
+                    int sum = next - start;
+                    if(sum >= 2){
+                    th.append(replace.substring(start, next) + ",");
                     word = th.toString();
                     word1 = word;
-                    second.add(pp);
-
-                }}}
+                    second.add(next);}
+                    else{ next--; }
+                }}
         catch(Exception e){
             System.out.println("Error !" + e.getMessage());
         }

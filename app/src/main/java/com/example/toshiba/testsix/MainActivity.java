@@ -33,6 +33,7 @@ import android.widget.Toast;
 import android.support.v7.widget.RecyclerView;
 
 import com.example.toshiba.testsix.editdistance.Distance;
+import com.example.toshiba.testsix.ldrule.AddMissingChar;
 import com.example.toshiba.testsix.ldrule.LDRule;
 import com.example.toshiba.testsix.soundex.Soundex;
 import com.example.toshiba.testsix.soundex.SoundexWord;
@@ -96,7 +97,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         dialog = new Dialog(this);
 
-        sharedPreferences = this.getSharedPreferences("com.example.toshiba.testsix", Context.MODE_PRIVATE);
+        //sharedPreferences = this.getSharedPreferences("com.example.toshiba.testsix", Context.MODE_PRIVATE);
 
         Locale thaiLocale = new Locale("th");
         boundary = BreakIterator.getWordInstance(thaiLocale);
@@ -107,8 +108,6 @@ public class MainActivity extends AppCompatActivity {
         Search = (ImageView) findViewById(R.id.Search);
         Voice = (ImageView) findViewById(R.id.Voice);
         Clear = (ImageView) findViewById(R.id.Clear);
-
-        ///first
 
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle("Spell Checker");
@@ -127,9 +126,9 @@ public class MainActivity extends AppCompatActivity {
                 start = breakclass.breakHighLight_Start(inputText.getText().toString());
                 end = breakclass.breakHighLight_End(inputText.getText().toString());
                 Spannable spanText = Spannable.Factory.getInstance().newSpannable(inputText.getText());
-
+                try{
                 spanText.setSpan(new BackgroundColorSpan(0xFFFFFF00), start.get(groupPosition),end.get(groupPosition), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                inputText.setText(spanText);
+                inputText.setText(spanText);} catch (Exception e){}
 
                 return false;
             }
@@ -141,6 +140,22 @@ public class MainActivity extends AppCompatActivity {
                 mylist.set(groupPosition,listDataChild.get(listDataHeader.get(groupPosition)).get(childPosition));
                 inputText.setText(mylist.toString().replace("[","").replace("]","").replace(" ","" +
                         "").replace(",",""));
+
+                ////Highlight
+                ArrayList<Integer> start = new ArrayList<Integer>();
+                ArrayList<Integer> end = new ArrayList<Integer>();
+
+                inputText.setText(highLight.toString().replace("[","").replace("]","").replace(" ","" +
+                        "").replace(",",""));
+
+                Breakclass breakclass = new Breakclass();
+                start = breakclass.breakHighLight_Start(inputText.getText().toString());
+                end = breakclass.breakHighLight_End(inputText.getText().toString());
+                Spannable spanText = Spannable.Factory.getInstance().newSpannable(inputText.getText());
+                try{
+                    spanText.setSpan(new BackgroundColorSpan(0xFFFFFF00), start.get(groupPosition),end.get(groupPosition), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    inputText.setText(spanText);} catch (Exception e){}
+
                 return false;
             }
         });
@@ -165,13 +180,15 @@ public class MainActivity extends AppCompatActivity {
                 senseList.clear();
                 dialog.show();
 
+                try {
                 recyclerView = (RecyclerView) dialog.findViewById(R.id.headersense);
                 senseAdapter = new senseRecyclerview(senseList,getApplicationContext());
                 RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getApplicationContext());
                 recyclerView.setLayoutManager(mLayoutManager);
                 recyclerView.setItemAnimator(new DefaultItemAnimator());
                 recyclerView.setAdapter(senseAdapter);
-                prepareDatasense(listDataChild.get(listDataHeader.get(groupPosition)).get(childPosition));
+                prepareDatasense(listDataChild.get(listDataHeader.get(groupPosition)).get(childPosition)); }
+                catch (Exception e){}
 
                 GravitySnapHelper snapHelper = new GravitySnapHelper(Gravity.TOP); //snap recyclerview
                 snapHelper.attachToRecyclerView(recyclerView);
@@ -198,7 +215,7 @@ public class MainActivity extends AppCompatActivity {
 
         Voice.setOnClickListener(new View.OnClickListener() { //กดอ่านข้อความ
             @Override
-            public void onClick(View v) {SpannableString str = new SpannableString(inputText.getText());
+            public void onClick(View v) {
                 if( inputText.length() > 0){
                 Speech.getInstance(getApplicationContext()).speak(inputText.getText().toString()); }
                 else { Toast.makeText(getApplicationContext(),"ไม่พบข้อความ",Toast.LENGTH_SHORT).show(); }
@@ -212,14 +229,6 @@ public class MainActivity extends AppCompatActivity {
                 expListView.setAdapter((BaseExpandableListAdapter)null);
             }
         });
-
-//        inputText.setOnLongClickListener(new View.OnLongClickListener() { //คลิกค้างอ่านข้อความทั้งประโยคใน inputText
-//            @Override
-//            public boolean onLongClick(View v) {
-//                Speech.getInstance(getApplicationContext()).speak(inputText.getText().toString());
-//                return false;
-//            }
-//        });
 
     }
 
@@ -242,24 +251,13 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-            public void Break(View view){//ตัดคำ
+    public void Break(View view){//ตัดคำ
                 if(inputText.length() > 0){
                     Breakclass breakClass = new Breakclass();
                     inputWord = inputText.getText().toString().replace("|","");
                     inputText.setText(breakClass.Break(inputWord.toString()));
                 } else{ Toast.makeText(this,"กรุณาพิมพ์ข้อความ",Toast.LENGTH_SHORT).show();}
             }
-
-    public void Textword1 (View view){
-
-        // preparing list data
-//        prepareListData();
-//        listAdapter = new ExpandableListAdapter(this, listDataHeader, listDataChild);
-//        expListView.setAdapter(listAdapter);
-
-        new SearchEngingTask().execute();
-
-    }
 
     private ArrayList<String> onKey(String input) {
 
