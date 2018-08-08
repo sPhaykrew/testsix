@@ -12,23 +12,17 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.Toolbar;
-import android.text.Spannable;
-import android.text.SpannableString;
-import android.text.style.BackgroundColorSpan;
 import android.util.Log;
 import android.view.Gravity;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.Toast;
 import android.support.v7.widget.RecyclerView;
 
@@ -38,14 +32,11 @@ import com.example.toshiba.testsix.ldrule.LDRule;
 import com.example.toshiba.testsix.soundex.Soundex;
 import com.example.toshiba.testsix.soundex.SoundexWord;
 import com.github.rubensousa.gravitysnaphelper.GravitySnapHelper;
-import com.thoughtbot.expandablerecyclerview.ExpandableRecyclerViewAdapter;
-import com.thoughtbot.expandablerecyclerview.models.ExpandableGroup;
-import com.thoughtbot.expandablerecyclerview.viewholders.ChildViewHolder;
-import com.thoughtbot.expandablerecyclerview.viewholders.GroupViewHolder;
+import com.xeoh.android.texthighlighter.TextHighlighter;
 
 import android.widget.ExpandableListView;
-import android.widget.ExpandableListView.OnChildClickListener;
 
+import java.io.File;
 import java.text.BreakIterator;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -115,57 +106,38 @@ public class MainActivity extends AppCompatActivity {
         expListView.setOnGroupClickListener(new ExpandableListView.OnGroupClickListener() { //highLight
             @Override
             public boolean onGroupClick(ExpandableListView parent, View v, int groupPosition, long id) {
-
-                ArrayList<Integer> start = new ArrayList<Integer>();
-                ArrayList<Integer> end = new ArrayList<Integer>();
-
-                inputText.setText(highLight.toString().replace("[","").replace("]","").replace(" ","" +
-                        "").replace(",",""));
-
-                Breakclass breakclass = new Breakclass();
-                start = breakclass.breakHighLight_Start(inputText.getText().toString());
-                end = breakclass.breakHighLight_End(inputText.getText().toString());
-                Spannable spanText = Spannable.Factory.getInstance().newSpannable(inputText.getText());
-                try{
-                spanText.setSpan(new BackgroundColorSpan(0xFFFFFF00), start.get(groupPosition),end.get(groupPosition), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                inputText.setText(spanText);} catch (Exception e){}
-
+                if(parent.isGroupExpanded(groupPosition))
+                {
+                    inputText.setText(inputWord);
+                }
+                else{ //highLight
+                    TextHighlighter textHighlighter = new TextHighlighter();
+                    inputText.setText(inputWord);
+                    textHighlighter.setBackgroundColor(Color.YELLOW).invalidate(TextHighlighter.BASE_MATCHER);
+                    textHighlighter.addTarget(findViewById(R.id.intest));
+                    textHighlighter.highlight(listDataHeader.get(groupPosition),
+                            TextHighlighter.BASE_MATCHER);
+                }
                 return false;
             }
         });
 
-        expListView.setOnChildClickListener(new OnChildClickListener() { //คลิกแทนข้อความ child ใน inputText
+        expListView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() { //คลิกแทนข้อความ child ใน inputText
             @Override
             public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
-                mylist.set(groupPosition,listDataChild.get(listDataHeader.get(groupPosition)).get(childPosition));
-                inputText.setText(mylist.toString().replace("[","").replace("]","").replace(" ","" +
-                        "").replace(",",""));
 
-                ////Highlight
-                ArrayList<Integer> start = new ArrayList<Integer>();
-                ArrayList<Integer> end = new ArrayList<Integer>();
+//                mylist.set(groupPosition,listDataChild.get(listDataHeader.get(groupPosition)).get(childPosition));
+//                inputText.setText(mylist.toString().replace("[","").replace("]","").replace(" ","" +
+//                        "").replace(",","")); // แทนคำแบบ arraylist index
 
-                inputText.setText(highLight.toString().replace("[","").replace("]","").replace(" ","" +
-                        "").replace(",",""));
+                inputWord = inputWord.replace(listDataHeader.get(groupPosition),
+                        listDataChild.get(listDataHeader.get(groupPosition)).get(childPosition));
+                inputText.setText(inputWord);
 
-                Breakclass breakclass = new Breakclass();
-                start = breakclass.breakHighLight_Start(inputText.getText().toString());
-                end = breakclass.breakHighLight_End(inputText.getText().toString());
-                Spannable spanText = Spannable.Factory.getInstance().newSpannable(inputText.getText());
-                try{
-                    spanText.setSpan(new BackgroundColorSpan(0xFFFFFF00), start.get(groupPosition),end.get(groupPosition), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                    inputText.setText(spanText);} catch (Exception e){}
+                listDataHeader.remove(groupPosition); //ลบ header
+                listAdapter.notifyDataSetChanged();
+                expListView.collapseGroup(groupPosition); // ยุบ expandable
 
-                return false;
-            }
-        });
-
-        expListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {  //คลิกก้างอ่านข้อความ child
-            @Override
-            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                int groupPosition = ExpandableListView.getPackedPositionGroup(id);
-                int childPosition = ExpandableListView.getPackedPositionChild(id);
-                Speech.getInstance(getApplicationContext()).speak(listDataChild.get(listDataHeader.get(groupPosition)).get(childPosition));
                 return false;
             }
         });
@@ -188,9 +160,14 @@ public class MainActivity extends AppCompatActivity {
                 recyclerView.setItemAnimator(new DefaultItemAnimator());
                 recyclerView.setAdapter(senseAdapter);
                 prepareDatasense(listDataChild.get(listDataHeader.get(groupPosition)).get(childPosition)); }
-                catch (Exception e){}
+                catch (Exception e){
+                    Log.d("Check","Error!");
+                    dialog.dismiss();
+                    listDataHeader.remove(groupPosition);
+                    listAdapter.notifyDataSetChanged();
+                                }
 
-                GravitySnapHelper snapHelper = new GravitySnapHelper(Gravity.TOP); //snap recyclerview
+                GravitySnapHelper snapHelper = new GravitySnapHelper(Gravity.TOP); //snap recyclerview popup
                 snapHelper.attachToRecyclerView(recyclerView);
 
                 close.setOnClickListener(new View.OnClickListener() {
@@ -199,7 +176,7 @@ public class MainActivity extends AppCompatActivity {
                         dialog.dismiss();
                     }
                 });
-                return false;
+                return true;
             }
         });
 
@@ -207,7 +184,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 closeKeyboard();
-                if (inputText.length() > 0 ){
+                if (inputText.length() > 1 ){
                     new SearchEngingTask().execute(); }
                 else { Toast.makeText(getApplicationContext(),"กรุณาพิมพ์ข้อความ",Toast.LENGTH_SHORT).show(); }
             }
@@ -483,7 +460,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     //////////////////////////////////////////////////////////////////////////////
-
 }
 
 

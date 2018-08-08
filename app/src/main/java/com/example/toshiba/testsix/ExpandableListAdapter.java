@@ -102,7 +102,6 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter{
         }
 
         TextView lblListHeader = (TextView) convertView.findViewById(R.id.textlayout);
-
         Typeface regular = Typeface.createFromAsset(_context.getAssets(),
                 "fonts/THSarabunNew.ttf");
         lblListHeader.setTypeface(regular, Typeface.NORMAL);
