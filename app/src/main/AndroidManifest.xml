@@ -30,6 +30,7 @@
         <activity android:name=".G2PActivity" />
         <activity android:name=".DownloadDataActivity" />
         <activity android:name=".ExtractActivity" />
+        <activity android:name=".setting_java"/>
 
     </application>
 

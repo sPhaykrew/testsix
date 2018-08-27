@@ -2,6 +2,7 @@ package com.example.toshiba.testsix;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Color;
@@ -36,7 +37,6 @@ import com.xeoh.android.texthighlighter.TextHighlighter;
 
 import android.widget.ExpandableListView;
 
-import java.io.File;
 import java.text.BreakIterator;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -82,13 +82,16 @@ public class MainActivity extends AppCompatActivity {
     ImageView Clear;
     Dialog dialog;
 
+    private static String my_Setting = "my_Setting";
+    SharedPreferences shared;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         dialog = new Dialog(this);
 
-        //sharedPreferences = this.getSharedPreferences("com.example.toshiba.testsix", Context.MODE_PRIVATE);
+        shared = getSharedPreferences(my_Setting, Context.MODE_PRIVATE);
 
         Locale thaiLocale = new Locale("th");
         boundary = BreakIterator.getWordInstance(thaiLocale);
@@ -210,7 +213,21 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void attachBaseContext(Context newBase){
+    protected void onResume(){
+        super.onResume();
+
+        int stringValue = shared.getInt("setting",20);
+
+        inputText.setTextSize(stringValue);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+    }
+
+    @Override
+    protected void attachBaseContext(Context newBase){ //Fonts
         super.attachBaseContext(CalligraphyContextWrapper.wrap(newBase));
     }
 
@@ -224,6 +241,9 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item){
         switch (item.getItemId()){
             case R.id.exit : System.exit(0); break;
+            case R.id.Setting :
+                Intent intent = new Intent(MainActivity.this,setting_java.class);
+                startActivity(intent);
         }
         return super.onOptionsItemSelected(item);
     }

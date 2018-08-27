@@ -21,5 +21,8 @@
     <style name="Toolbar.TitleText" parent="TextAppearance.Widget.AppCompat.Toolbar.Title">
         <item name="android:textSize">26dp</item>
     </style>
+    <style name="Toolbar.TitleText_setting" parent="TextAppearance.Widget.AppCompat.Toolbar.Title">
+        <item name="android:textSize">26dp</item>
+    </style>
 
 </resources>
