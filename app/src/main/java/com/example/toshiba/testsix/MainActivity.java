@@ -6,7 +6,9 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -15,15 +17,20 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.support.v7.widget.RecyclerView;
 
@@ -83,7 +90,8 @@ public class MainActivity extends AppCompatActivity {
     Dialog dialog;
 
     private static String my_Setting = "my_Setting";
-    SharedPreferences shared;
+    private static String Thame = "Thame";
+    SharedPreferences shared,ThameChange;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,6 +100,7 @@ public class MainActivity extends AppCompatActivity {
         dialog = new Dialog(this);
 
         shared = getSharedPreferences(my_Setting, Context.MODE_PRIVATE);
+        ThameChange = getSharedPreferences(Thame, Context.MODE_PRIVATE);
 
         Locale thaiLocale = new Locale("th");
         boundary = BreakIterator.getWordInstance(thaiLocale);
@@ -151,7 +160,11 @@ public class MainActivity extends AppCompatActivity {
                 dialog.setContentView(R.layout.sense);
                 int groupPosition = ExpandableListView.getPackedPositionGroup(id);
                 int childPosition = ExpandableListView.getPackedPositionChild(id);
+
+                String colorPrimaryDark = ThameChange.getString("colorPrimaryDark","FFD54F");
                 Button close = (Button) dialog.findViewById(R.id.goBack);
+                close.setBackgroundColor((Color.parseColor(colorPrimaryDark)));
+
                 senseList.clear();
                 dialog.show();
 
@@ -216,9 +229,14 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume(){
         super.onResume();
 
-        int stringValue = shared.getInt("setting",20);
+        int fontSize = shared.getInt("setting",20);
+        String colorPrimaryDark = ThameChange.getString("colorPrimaryDark","#FF8F00");
+        String colorPrimary = ThameChange.getString("colorPrimary","#FFB300");
 
-        inputText.setTextSize(stringValue);
+        changeStatusBarColor(colorPrimaryDark);
+        toolbar.setBackgroundColor((Color.parseColor(colorPrimary)));
+
+        inputText.setTextSize(fontSize);
     }
 
     @Override
@@ -244,6 +262,9 @@ public class MainActivity extends AppCompatActivity {
             case R.id.Setting :
                 Intent intent = new Intent(MainActivity.this,setting_java.class);
                 startActivity(intent);
+            case R.id.Manual :
+                Intent intent1 = new Intent(MainActivity.this,manual_java.class);
+                startActivity(intent1);
         }
         return super.onOptionsItemSelected(item);
     }
@@ -480,6 +501,217 @@ public class MainActivity extends AppCompatActivity {
     }
 
     //////////////////////////////////////////////////////////////////////////////
+
+    //Expandable adpter
+    public class ExpandableListAdapter extends BaseExpandableListAdapter{
+
+        private Context _context;
+        private List<String> _listDataHeader; // header titles
+        // child data in format of header title, child title
+        private HashMap<String, List<String>> _listDataChild;
+
+        public ExpandableListAdapter(Context context, List<String> listDataHeader,
+                                     HashMap<String, List<String>> listChildData) {
+            this._context = context;
+            this._listDataHeader = listDataHeader;
+            this._listDataChild = listChildData;
+        }
+
+        @Override
+        public Object getChild(int groupPosition, int childPosititon) {
+            return this._listDataChild.get(this._listDataHeader.get(groupPosition))
+                    .get(childPosititon);
+        }
+
+        @Override
+        public long getChildId(int groupPosition, int childPosition) {
+            return childPosition;
+        }
+
+        @Override
+        public View getChildView(int groupPosition, final int childPosition,
+                                 boolean isLastChild, View convertView, ViewGroup parent) {
+
+            int fontSize = shared.getInt("setting",24); //setting font size
+
+            final String childText = (String) getChild(groupPosition, childPosition);
+
+            if (convertView == null) {
+                LayoutInflater infalInflater = (LayoutInflater) this._context
+                        .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                convertView = infalInflater.inflate(R.layout.expandable_recyclerview, null);
+            }
+
+            ImageView buttonVoice = (ImageView) convertView
+                    .findViewById(R.id.buttonVoice);
+            final TextView txtListChild = (TextView) convertView
+                    .findViewById(R.id.expandable);
+
+            buttonVoice.setOnClickListener(new View.OnClickListener() { //อ่านข้อความ child
+                @Override
+                public void onClick(View v) {
+                    Speech.getInstance(_context).speak(childText);
+                }
+            });
+
+            Typeface regular = Typeface.createFromAsset(_context.getAssets(),
+                    "fonts/THSarabunNew.ttf");
+            txtListChild.setTypeface(regular, Typeface.NORMAL);
+
+            txtListChild.setTextSize(fontSize);//setting font size
+
+            txtListChild.setText(childText);
+            buttonVoice.setImageResource(R.drawable.ic_volume_up_black_24dp);
+
+            return convertView;
+        }
+
+        @Override
+        public int getChildrenCount(int groupPosition) {
+            return this._listDataChild.get(this._listDataHeader.get(groupPosition))
+                    .size();
+        }
+
+        @Override
+        public Object getGroup(int groupPosition) {
+            return this._listDataHeader.get(groupPosition);
+        }
+
+        @Override
+        public int getGroupCount() {
+            return this._listDataHeader.size();
+        }
+
+        @Override
+        public long getGroupId(int groupPosition) {
+            return groupPosition;
+        }
+
+        @Override
+        public View getGroupView(int groupPosition, boolean isExpanded,
+                                 View convertView, ViewGroup parent) {
+
+            int fontSize = shared.getInt("setting",24); //setting font size
+            String colorAccent = ThameChange.getString("colorAccent","FFD54F");
+
+            String headerTitle = (String) getGroup(groupPosition);
+            if (convertView == null) {
+                LayoutInflater infalInflater = (LayoutInflater) this._context
+                        .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                convertView = infalInflater.inflate(R.layout.listviewrecycler, null);
+            }
+
+            TextView lblListHeader = (TextView) convertView.findViewById(R.id.textlayout);
+            Typeface regular = Typeface.createFromAsset(_context.getAssets(),
+                    "fonts/THSarabunNew.ttf");
+            lblListHeader.setTypeface(regular, Typeface.NORMAL);
+
+            lblListHeader.setTextSize(fontSize);
+
+            //lblListHeader.setTypeface(null, Typeface.BOLD);
+            lblListHeader.setText(headerTitle);
+
+            convertView.setBackgroundColor((Color.parseColor(colorAccent)));
+
+            return convertView;
+        }
+
+        @Override
+        public boolean hasStableIds() {
+            return false;
+        }
+
+        @Override
+        public boolean isChildSelectable(int groupPosition, int childPosition) {
+            return true;
+        }
+    }
+
+    //senseRecyclerview adpter
+    public class senseRecyclerview extends RecyclerView.Adapter<senseRecyclerview.MyViewHolder> {
+
+        private List<sense> senseList;
+        public Context context;
+
+        public class MyViewHolder extends RecyclerView.ViewHolder {
+            public TextView word, senseTH, senseEng;
+            public ImageView voiceTH,voiceEng;
+
+            public MyViewHolder(View view) {
+                super(view);
+
+                int senseFontsHeader = shared.getInt("senseFontsHeader",22); //setting font size
+                int senseFonts = shared.getInt("senseFonts",18); //setting font size
+
+                word = (TextView) view.findViewById(R.id.headerWord);
+                word.setBackgroundColor(000000);
+                word.setTextSize(senseFontsHeader);
+
+                senseTH = (TextView) view.findViewById(R.id.senseTh);
+                senseTH.setBackgroundColor(000000);
+                senseTH.setTextSize(senseFonts);
+
+                senseEng = (TextView) view.findViewById(R.id.senseEng);
+                senseEng.setBackgroundColor(000000);
+                senseEng.setTextSize(senseFonts);
+
+                voiceTH = (ImageView) view.findViewById(R.id.imageView1);
+                voiceEng = (ImageView) view.findViewById(R.id.imageView2);
+            }
+        }
+
+        public senseRecyclerview(List<sense> moviesList,Context context) {
+            this.senseList = moviesList;
+            this.context = context;
+        }
+
+        @Override
+        public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            View itemView = LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.senserecyclerview, parent, false);
+
+            itemView.setBackgroundColor(000000);
+
+            return new MyViewHolder(itemView);
+        }
+
+        @Override
+        public void onBindViewHolder(senseRecyclerview.MyViewHolder holder, int position) {
+            final sense sense = senseList.get(position);
+            holder.word.setText(sense.getWord());
+            holder.senseTH.setText(sense.getSenseTH());
+            holder.senseEng.setText(sense.getSenseEng());
+
+            holder.voiceTH.setOnClickListener(new View.OnClickListener() { //อ่านความหมายภาษาไทย
+                @Override
+                public void onClick(View v) {
+                    Speech.getInstance(context).speak(sense.getSenseTH().substring(6));
+                }
+            });
+
+            holder.voiceEng.setOnClickListener(new View.OnClickListener() { //อ่านคำภาษาอังกฤษ
+                @Override
+                public void onClick(View v) {
+                    Speech.getInstance(context).speak(sense.getSenseEng().substring(9));
+                }
+            });
+
+        }
+
+        @Override
+        public int getItemCount() {
+            return senseList.size();
+        }
+    }
+
+    private void changeStatusBarColor(String color){
+        if (Build.VERSION.SDK_INT >= 21) {
+            Window window = getWindow();
+            window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+            window.setStatusBarColor(Color.parseColor(color));
+        }
+    }
 }
 
 

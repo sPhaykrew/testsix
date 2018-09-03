@@ -51,4 +51,6 @@ dependencies {
     implementation 'uk.co.chrisjenx:calligraphy:2.1.0'
 
     implementation 'com.xeoh.android:text-highlighter:1.0.2'
+
+    implementation 'com.github.barteksc:android-pdf-viewer:3.1.0-beta.1'
 }

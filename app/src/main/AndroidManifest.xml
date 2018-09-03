@@ -31,6 +31,7 @@
         <activity android:name=".DownloadDataActivity" />
         <activity android:name=".ExtractActivity" />
         <activity android:name=".setting_java"/>
+        <activity android:name=".manual_java"/>
 
     </application>
 
