@@ -441,7 +441,8 @@ public class MainActivity extends AppCompatActivity {
         } else {
 
             //LDWord.addAll(missChar.findMissingChar(para[0]));
-            missingChar = missChar.findMissingChar(onkey);
+            AddMissingChar addMissingChar = new AddMissingChar(getApplicationContext());
+            missingChar = addMissingChar.findMissingChar(onkey);
             Log.i("missingChar--->", String.valueOf(missingChar));
 
             for (int i = 0; i < missingChar.size(); i++) {

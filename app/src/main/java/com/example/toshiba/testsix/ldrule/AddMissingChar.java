@@ -71,7 +71,7 @@ public class AddMissingChar {
         db = databaseSpell.getWritableDatabase();
         cursor = db.rawQuery("SELECT * FROM BEST_SPELL_TH WHERE "+noteFilter+"",null);
 
-        if(cursor.getCount() > 0){
+        if(cursor != null){
             cursor.moveToFirst();
             do{
                 String word = cursor.getString(1);
