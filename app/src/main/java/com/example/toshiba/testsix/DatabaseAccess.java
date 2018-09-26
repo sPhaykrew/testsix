@@ -3,9 +3,7 @@ package com.example.toshiba.testsix;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Locale;
 
 public class DatabaseAccess {

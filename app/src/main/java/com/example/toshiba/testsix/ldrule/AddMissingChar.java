@@ -10,8 +10,6 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import com.example.toshiba.testsix.DatabaseSpell;
-import com.example.toshiba.testsix.DictionaryDBOpenHelper;
-import com.example.toshiba.testsix.DictionaryProvider;
 import com.example.toshiba.testsix.soundex.Soundex;
 
 
@@ -60,9 +58,6 @@ public class AddMissingChar {
         String noteFilter = sqlCondition;
         //Log.d("Lattapol!!!!!!",noteFilter);
         //wordList.add(noteFilter);
-
-// Cursor cursor = ctx.getContentResolver().query(DictionaryProvider.CONTENT_URI,
-//                DictionaryDBOpenHelper.ALL_COLUMNS, noteFilter, null, null);
 
         DatabaseSpell databaseSpell = null;
         Cursor cursor = null;
@@ -132,11 +127,11 @@ public class AddMissingChar {
         //String test = "(SENSEGROUP LIKE '%ธ%ร%ร%ม%ช%า%ิ%ค%' OR SENSEGROUP LIKE 'โรงเรียน') AND LENGTH(SENSEGROUP) < 11";
         String sql = "(";
         if(wordList.size() > 0){
-            sql += DictionaryDBOpenHelper.WORD_VOCAB +" LIKE '" + addSign(wordList.get(0)) + "'";
+            sql += "SENSEGROUP" +" LIKE '" + addSign(wordList.get(0)) + "'";
         }
 
         for(int i=1; i<wordList.size(); i++){
-            sql = sql + " OR " + DictionaryDBOpenHelper.WORD_VOCAB + " LIKE '"+ addSign(wordList.get(i))+ "'" ;
+            sql = sql + " OR " + "SENSEGROUP" + " LIKE '"+ addSign(wordList.get(i))+ "'" ;
         }
 
         return sql;

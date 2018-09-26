@@ -2,14 +2,10 @@ package com.example.toshiba.testsix.soundex;
 
 import android.content.Context;
 import android.util.Log;
-
 import com.example.toshiba.testsix.GraphemeToPhoneme;
-
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
-
-
 
 /**
  * Created by Lattapol on 19/12/2559.
@@ -58,7 +54,7 @@ public class IgnoreLR {
             String G2PText = g2p.getG2P(result.get(i)).replace("*","");
             outputG2P.add(G2PText);
 
-        }
+        } Log.d("eer",outputG2P.toString());
         return outputG2P;
     }
 

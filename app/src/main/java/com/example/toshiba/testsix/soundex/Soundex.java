@@ -2,13 +2,8 @@ package com.example.toshiba.testsix.soundex;
 
 import android.content.Context;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
-
-import com.example.toshiba.testsix.DatabaseSpell;
 import com.example.toshiba.testsix.DatabaseSpellAccess;
-import com.example.toshiba.testsix.DictionaryDBOpenHelper;
-import com.example.toshiba.testsix.DictionaryProvider;
 
 import java.util.ArrayList;
 
@@ -33,7 +28,7 @@ public class Soundex {
         IgnoreLR LRSwap = new IgnoreLR(ctx);
         ArrayList<String> G2PSound = LRSwap.getIgnoreLR(text); //G2PSound คำในรูปเสียง
 
-        //Log.i("G2PSound!!!!!!!!!!!!!", G2PSound.toString()); //get G2P
+        Log.i("G2PSound!!!!!!!!!!!!!S", G2PSound.toString()); //get G2P
 
         ArrayList<String> similarWord = new ArrayList<String>();
         for (int i = 0; i < G2PSound.size(); i++) {
@@ -105,15 +100,12 @@ public class Soundex {
 
         g2p = String.valueOf(str);
 
-        noteFilter = "(" + DictionaryDBOpenHelper.WORD_G2P + " LIKE '" + g2p + "'";
+        noteFilter = "(" + "G2P" + " LIKE '" + g2p + "'";
 
-        //noteFilter += ") AND (LENGTH(G2P) < " + g2pLength * 2 + ")"; Log.d("ccc",noteFilter); //g2pLength คือพยางค์คำ
-        noteFilter += ") AND (LENGTH(G2P) < " + g2pLength  + ")"; Log.d("ccc",noteFilter);
+        //noteFilter += ") AND (LENGTH(G2P) < " + g2pLength * 2 + ")"; //g2pLength พยางค์คำ
+        noteFilter += ") AND (LENGTH(G2P) < " + g2pLength  + ")";
 
         Log.i("NECTECWorldABC--->", noteFilter);
-
-//        Cursor cursor = ctx.getContentResolver().query(DictionaryProvider.CONTENT_URI,
-//                    DictionaryDBOpenHelper.ALL_COLUMNS, noteFilter, null, null);
 
         DatabaseSpellAccess databaseSpellAccess = new DatabaseSpellAccess(ctx);
         databaseSpellAccess.open();
@@ -134,7 +126,7 @@ public class Soundex {
                     do
                     {
                         String g2p_word;
-                        g2p_word = cursor.getString(cursor.getColumnIndex(DictionaryDBOpenHelper.WORD_VOCAB));
+                        g2p_word = cursor.getString(cursor.getColumnIndex("SENSEGROUP"));
                         similarWord.add(g2p_word);
                     } while (cursor.moveToNext());
                 }
